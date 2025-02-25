@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Build;
 using UnityEngine;
 
 public class NextStage : MonoBehaviour
 {
     private bool _isOpen;
     [SerializeField] private LayerMask _keyLayer;
+
+    private SceneLoader _sceneLoader;
     void Start()
     {
+        _sceneLoader = GameObject.FindAnyObjectByType<SceneLoader>();
         _isOpen = false;
     }
 
@@ -36,7 +38,7 @@ public class NextStage : MonoBehaviour
         if (collision.CompareTag("Player") && _isOpen)
         {
             // Next Stage
-            Debug.Log("Next Stage");
+            _sceneLoader.LoadNextScene();
         }
     }
 

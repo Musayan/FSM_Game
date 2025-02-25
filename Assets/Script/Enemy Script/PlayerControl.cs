@@ -1,8 +1,7 @@
+using Cinemachine.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.ShaderGraph.Internal;
-using UnityEditor.Tilemaps;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -12,7 +11,7 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] Animator _playerAnim;
 
     private Vector2 _smoothMove;
-    public Vector2 _inputMove;
+    [HideInInspector] public Vector2 _inputMove;
 
     public float _moveSpeed;
     public float _jumpForce;
@@ -75,7 +74,7 @@ public class PlayerControl : MonoBehaviour
     #region attack
 
     [SerializeField] private float _playerdamage = 4f;
-    public LayerMask _enemy;
+    public LayerMask _enemy, _bossEnemy;
     public Transform _attackPos;
     [SerializeField] private float _distanceAtk;
     public LayerMask _object;
@@ -84,7 +83,7 @@ public class PlayerControl : MonoBehaviour
     private void Attack()
     {
         RaycastHit2D hitEnemy = Physics2D.Raycast(_attackPos.position, (facingDir == 1 ? Vector2.right : Vector2.left), _distanceAtk, _enemy);
-
+ 
         if (hitEnemy.collider != null)
         {
             EnemyHealth _enemyHealth = hitEnemy.collider.GetComponent<EnemyHealth>();
@@ -98,6 +97,14 @@ public class PlayerControl : MonoBehaviour
             Destroy(objectHit.collider.gameObject);
         }
 
+        
+        RaycastHit2D BossEnemy = Physics2D.Raycast(_attackPos.position, (facingDir == 1 ? Vector2.right : Vector2.left), _distanceAtk, _bossEnemy);
+
+        if (BossEnemy.collider != null)
+        {
+            BossFunction _boss = BossEnemy.collider.GetComponent<BossFunction>();
+            _boss.DamageBoss(_playerdamage);
+        }
     }
 
     #endregion
@@ -128,7 +135,13 @@ public class PlayerControl : MonoBehaviour
 
             if (Input.GetButtonDown("Jump") && isGrounded())
             {
-                _rb.AddForce(new Vector2(_rb.velocity.x, _jumpForce));
+                _rb.velocity = new Vector2(_rb.velocity.x, _jumpForce);
+                _playerAnim.SetTrigger("GoingUp");
+            }
+                
+            if(Input.GetButtonUp("Jump") && _rb.velocity.y > 0)
+            {
+                _rb.velocity = new Vector2(_rb.velocity.x, _rb.velocity.y * 0.3f);
                 _playerAnim.SetTrigger("GoingUp");
             }
 

@@ -23,10 +23,15 @@ public class GameManager : MonoBehaviour
     [Header("Gate Function")]
     [SerializeField] private Animator _animtorGate;
 
+    [Header("Boss")]
+    [SerializeField] private BossFunction _bossFun;
+    [SerializeField] private GameObject _crown;
+    [SerializeField] private Transform _targetSpawnCrown;
+    private bool CrownSpawned = false;
     /*[Header("Door Function")]
     [SerializeField] private Animator _animatorDoor;*/
 
- 
+
     private void Start()
     {
         Time.timeScale = 1.0f;  
@@ -47,33 +52,49 @@ public class GameManager : MonoBehaviour
         {
             _animtorGate.SetBool("isGateOpen", true);
         }
+
+        if (_bossFun != null)
+        {
+            if (_bossFun.bossDead() && !CrownSpawned)
+            {
+                Instantiate(_crown, _targetSpawnCrown.position, Quaternion.identity);
+                CrownSpawned =true;
+            }
+        }
     }
 
     private bool SpawnKey()
     {
-        GameObject[] stageBoss = GameObject.FindGameObjectsWithTag("StageBoss");
-        int stageBossCount = stageBoss.Length;
-
-        if (stageBossCount <= 0)
+        if (_key != null && _KeySpawn != null)
         {
-            return true;
+            GameObject[] stageBoss = GameObject.FindGameObjectsWithTag("StageBoss");
+            int stageBossCount = stageBoss.Length;
+
+            if (stageBossCount <= 0)
+            {
+                return true;
+            }
+            else
+                return false;
         }
-        else
-            return false;
+        return false;
     }
 
     private bool OpenDoor()
     {
-        GameObject[] enemy = GameObject.FindGameObjectsWithTag("Enemy");
-        int enemyCount = enemy.Length;
-
-        if (enemyCount <= 0)
+        if (_animtorGate != null)
         {
-            return true;
-        }
-        else
-            return false;
+            GameObject[] enemy = GameObject.FindGameObjectsWithTag("Enemy");
+            int enemyCount = enemy.Length;
 
+            if (enemyCount <= 0)
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+        return false;
     }
     private IEnumerator GameOverSet()
     {
@@ -81,4 +102,5 @@ public class GameManager : MonoBehaviour
         _uiManager.GameOver();
         Time.timeScale = 0f;
     }
+
 }
